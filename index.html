@@ -5,36 +5,126 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Government Scheme Explainer</title>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 0 16px; }
-    textarea { width: 100%; height: 160px; padding: 8px; }
-    select, button { padding: 10px; margin-top: 10px; margin-right: 6px; font-size: 16px; }
-    .box { margin-top: 20px; padding: 12px; background: #f3f3f3; border-radius: 8px; white-space: pre-wrap; }
-    .q { margin: 12px 0; }
-    label { margin-right: 16px; }
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --brand: #4f46e5;
+      --brand-dark: #4338ca;
+      --line: #e5e7eb;
+      --soft: #eef2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff; padding: 36px 16px 56px; text-align: center;
+    }
+    header h1 { margin: 0 0 8px; font-size: 28px; }
+    header p { margin: 0 auto; max-width: 560px; opacity: 0.92; }
+    main { max-width: 720px; margin: -32px auto 40px; padding: 0 16px; }
+    .card {
+      background: var(--card); border-radius: 14px; padding: 18px;
+      box-shadow: 0 4px 16px rgba(17, 24, 39, 0.08); margin-bottom: 16px;
+    }
+    label.title { display: block; font-weight: 600; margin-bottom: 8px; }
+    textarea {
+      width: 100%; height: 170px; padding: 12px; font-size: 15px;
+      border: 1px solid var(--line); border-radius: 10px; resize: vertical;
+      font-family: inherit;
+    }
+    textarea:focus, select:focus { outline: 2px solid var(--brand); border-color: transparent; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; align-items: center; }
+    select {
+      padding: 10px 12px; font-size: 15px; border-radius: 10px;
+      border: 1px solid var(--line); background: #fff;
+    }
+    button {
+      padding: 10px 16px; font-size: 15px; border-radius: 10px; border: none;
+      cursor: pointer; font-weight: 600; background: var(--brand); color: #fff;
+    }
+    button:hover { background: var(--brand-dark); }
+    button.secondary { background: var(--soft); color: var(--brand-dark); }
+    button.secondary:hover { background: #e0e7ff; }
+    button.link {
+      background: none; color: var(--brand); padding: 4px 0; font-weight: 500;
+      text-decoration: underline;
+    }
+    .box {
+      margin-top: 12px; padding: 14px; background: #f9fafb; border: 1px solid var(--line);
+      border-radius: 10px; white-space: pre-wrap;
+    }
     #voiceNote { margin-top: 8px; font-size: 14px; color: #a15c00; }
+    .q { margin: 14px 0; }
+    .q p { margin: 0 0 6px; font-weight: 600; }
+    .q label { margin-right: 18px; cursor: pointer; }
+    footer { text-align: center; color: var(--muted); font-size: 13px; padding: 0 16px 32px; }
+    h2.section { font-size: 18px; margin: 0 0 4px; }
+    .hint { color: var(--muted); font-size: 14px; margin: 0; }
   </style>
 </head>
 <body>
-  <h2>Government Scheme Explainer</h2>
-  <textarea id="notice" placeholder="Paste a scheme or government notice here"></textarea>
-  <br>
-  <select id="lang">
-    <option>Marathi</option>
-    <option>Hindi</option>
-    <option>English</option>
-  </select>
-  <button onclick="explain()">Explain</button>
-  <button onclick="getQuestions()">Check my eligibility</button>
+  <header>
+    <h1>Government Scheme Explainer</h1>
+    <p>Understand any government scheme in simple Marathi, Hindi or English. Check your eligibility and listen to the answer.</p>
+  </header>
 
-  <div id="result" class="box">The explanation will appear here.</div>
-  <button onclick="speak('result')">Listen</button>
-  <button onclick="stopSpeaking()">Stop</button>
-  <div id="voiceNote"></div>
+  <main>
+    <div class="card">
+      <label class="title" for="notice">1. Paste a scheme or government notice</label>
+      <textarea id="notice" placeholder="Paste the scheme text here"></textarea>
+      <div class="row">
+        <button class="link" onclick="fillExample()">Try the PM-KISAN example</button>
+      </div>
+      <div class="row">
+        <select id="lang">
+          <option>Marathi</option>
+          <option>Hindi</option>
+          <option>English</option>
+        </select>
+        <button onclick="explain()">Explain</button>
+        <button class="secondary" onclick="getQuestions()">Check my eligibility</button>
+      </div>
+    </div>
 
-  <div id="quiz"></div>
+    <div class="card">
+      <h2 class="section">Explanation</h2>
+      <p class="hint">Answers use only the text you pasted.</p>
+      <div id="result" class="box">The explanation will appear here.</div>
+      <div class="row">
+        <button class="secondary" onclick="speak('result')">Listen</button>
+        <button class="secondary" onclick="stopSpeaking()">Stop</button>
+      </div>
+      <div id="voiceNote"></div>
+    </div>
+
+    <div class="card" id="quizCard" style="display:none">
+      <h2 class="section">Eligibility check</h2>
+      <div id="quiz"></div>
+    </div>
+  </main>
+
+  <footer>
+    This tool is for understanding only. Always confirm details on the official government website.
+  </footer>
 
   <script>
     let questions = [];
+
+    const EXAMPLE = `PM-KISAN Scheme
+Under this scheme, eligible farmer families receive Rs 6,000 per year. The amount is paid in three equal installments of Rs 2,000 each, directly into the farmer's bank account.
+Eligibility: The family must own cultivable land. Institutional landholders, income tax payers and government employees are not eligible.
+Documents required: Aadhaar card, land ownership records and a bank account passbook.
+How to apply: Register on the official PM-KISAN portal or visit the nearest Common Service Centre.`;
+
+    function fillExample() {
+      document.getElementById("notice").value = EXAMPLE;
+    }
 
     function inputs() {
       return {
@@ -54,18 +144,28 @@
 
     async function explain() {
       const result = document.getElementById("result");
-      result.innerText = "Thinking...";
+      if (!inputs().text.trim()) {
+        result.innerText = "Please paste some text first, or use the example.";
+        return;
+      }
+      result.innerText = "Thinking... (the first request may take up to a minute)";
       try {
         const data = await post("/api/explain", inputs());
         result.innerText = data.answer;
       } catch (e) {
-        result.innerText = "Something went wrong. Is the server running?";
+        result.innerText = "Something went wrong. Please try again.";
       }
     }
 
     async function getQuestions() {
+      const card = document.getElementById("quizCard");
       const quiz = document.getElementById("quiz");
-      quiz.className = "box";
+      if (!inputs().text.trim()) {
+        card.style.display = "block";
+        quiz.innerText = "Please paste some text first, or use the example.";
+        return;
+      }
+      card.style.display = "block";
       quiz.innerText = "Preparing questions...";
       try {
         const data = await post("/api/questions", inputs());
@@ -88,28 +188,33 @@
           });
           quiz.appendChild(div);
         });
+
+        const row = document.createElement("div");
+        row.className = "row";
         const btn = document.createElement("button");
         btn.innerText = "Get result";
         btn.onclick = getVerdict;
-        quiz.appendChild(btn);
-
+        row.appendChild(btn);
         const listenBtn = document.createElement("button");
+        listenBtn.className = "secondary";
         listenBtn.innerText = "Listen";
         listenBtn.onclick = () => speak("verdict");
-        quiz.appendChild(listenBtn);
+        row.appendChild(listenBtn);
+        quiz.appendChild(row);
 
         const out = document.createElement("div");
         out.id = "verdict";
-        out.style.marginTop = "12px";
-        out.style.whiteSpace = "pre-wrap";
+        out.className = "box";
+        out.style.display = "none";
         quiz.appendChild(out);
       } catch (e) {
-        quiz.innerText = "Something went wrong. Is the server running?";
+        quiz.innerText = "Something went wrong. Please try again.";
       }
     }
 
     async function getVerdict() {
       const out = document.getElementById("verdict");
+      out.style.display = "block";
       out.innerText = "Checking...";
       const answers = questions.map((q, i) => {
         const picked = document.querySelector(`input[name="q${i}"]:checked`);
@@ -152,7 +257,6 @@
       let code = LANG_CODES[lang];
       let voice = findVoice(code);
 
-      // Marathi voice missing: Hindi voice can read Devanagari text
       if (!voice && lang === "Marathi") {
         voice = findVoice("hi-IN");
         if (voice) {
